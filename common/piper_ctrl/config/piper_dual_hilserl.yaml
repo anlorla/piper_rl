@@ -1,0 +1,131 @@
+# ============================================================
+# RL/HIL-SERL 专用配置：统一 topic 契约
+# 目标：
+# 1) follower 控制节点永远订阅 /robot/*/vla_joint_cmd
+# 2) leader 节点永远发布 /robot/leader_*/joint_states 供 HIL-SERL 读取
+# ============================================================
+
+# -------------------------
+# Robot side (Follower arms)
+# -------------------------
+piper_ctrl_left_node:
+  can_port: "can_left"
+  topic_prefix: "/robot/arm_left/"
+  auto_enable: true
+
+  gripper_exist: true
+  gripper_val_mutiple: 0.75
+  enable_gripper: true
+  enable_gripper_haptic: false
+  gripper_range: 0.08
+  gripper_reverse: false
+
+  gripper_pos_cmd_topic: "gripper_pos_cmd"
+  gripper_effort_cmd_topic: "gripper_effort_cmd"
+
+  p:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+  mit:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+    joint_vel_cmd_topic: "joint_vel_cmd"
+    joint_tor_cmd_topic: "joint_tor_cmd"
+    joint_states_compensated_topic: "joint_states_compensated"
+
+  remap:
+    joint_pos_cmd_to: "/robot/arm_left/policy_joint_cmd"
+    gripper_pos_cmd_to: "/robot/arm_left/policy_joint_cmd"
+
+piper_ctrl_right_node:
+  can_port: "can_right"
+  topic_prefix: "/robot/arm_right/"
+  auto_enable: true
+
+  gripper_exist: true
+  gripper_val_mutiple: 1.25
+  enable_gripper: true
+  enable_gripper_haptic: false
+  gripper_range: 0.08
+  gripper_reverse: false
+
+  gripper_pos_cmd_topic: "gripper_pos_cmd"
+  gripper_effort_cmd_topic: "gripper_effort_cmd"
+
+  p:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+  mit:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+    joint_vel_cmd_topic: "joint_vel_cmd"
+    joint_tor_cmd_topic: "joint_tor_cmd"
+    joint_states_compensated_topic: "joint_states_compensated"
+
+  remap:
+    joint_pos_cmd_to: "/robot/arm_right/policy_joint_cmd"
+    gripper_pos_cmd_to: "/robot/arm_right/policy_joint_cmd"
+
+# -------------------------
+# Teleop side (Leader arms) - 用于 HIL 干预输入
+# -------------------------
+piper_teleop_left_node:
+  can_port: "can_left"
+  topic_prefix: "/teleop/arm_left/"
+  auto_enable: true
+
+  gripper_exist: true
+  gripper_val_mutiple: 1.0
+  enable_gripper: true
+  enable_gripper_haptic: true
+  gripper_range: 0.08
+  gripper_reverse: true
+
+  gripper_pos_cmd_topic: "gripper_pos_cmd"
+  gripper_effort_cmd_topic: "gripper_effort_cmd"
+
+  p:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+  mit:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+    joint_vel_cmd_topic: "joint_vel_cmd"
+    joint_tor_cmd_topic: "joint_tor_cmd"
+    joint_states_compensated_topic: "joint_states_compensated"
+
+  remap:
+    # 关键：leader 输出到 /robot/leader_left/joint_states
+    joint_pos_cmd_to: "/robot/leader_left/joint_states"
+    gripper_pos_cmd_to: "/robot/leader_left/joint_states"
+
+    # 如果你们原 teleop 节点还需要 follower 的 joint_states 做触觉/力矩反馈，
+    # 这两条可保留（你原配置就是这样）：
+    joint_tor_cmd_to: "/robot/arm_left/joint_states_single"
+    joint_states_compensated_to: "/robot/arm_left/joint_states_compensated"
+    gripper_effort_cmd_to: "/robot/arm_left/joint_states_single"
+
+piper_teleop_right_node:
+  can_port: "can_right"
+  topic_prefix: "/teleop/arm_right/"
+  auto_enable: true
+
+  gripper_exist: true
+  gripper_val_mutiple: 1.0
+  enable_gripper: true
+  enable_gripper_haptic: true
+  gripper_range: 0.08
+  gripper_reverse: true
+
+  gripper_pos_cmd_topic: "gripper_pos_cmd"
+  gripper_effort_cmd_topic: "gripper_effort_cmd"
+
+  p:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+  mit:
+    joint_pos_cmd_topic: "joint_pos_cmd"
+    joint_vel_cmd_topic: "joint_vel_cmd"
+    joint_tor_cmd_topic: "joint_tor_cmd"
+    joint_states_compensated_topic: "joint_states_compensated"
+
+  remap:
+    joint_pos_cmd_to: "/robot/leader_right/joint_states"
+    gripper_pos_cmd_to: "/robot/leader_right/joint_states"
+
+    joint_tor_cmd_to: "/robot/arm_right/joint_states_single"
+    joint_states_compensated_to: "/robot/arm_right/joint_states_compensated"
+    gripper_effort_cmd_to: "/robot/arm_right/joint_states_single"
